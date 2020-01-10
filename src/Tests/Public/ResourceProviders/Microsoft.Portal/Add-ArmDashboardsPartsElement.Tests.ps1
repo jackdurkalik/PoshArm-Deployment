@@ -5,7 +5,7 @@ InModuleScope PoshArmDeployment {
     Describe "Add-ArmDashboardsPartsElement" {
         $Depth = 9
         Context "Unit tests" {
-            It "Given a dashboard with no parts and '<Part>', it returns '<Expected>' with one element" -TestCases @(
+            It "Given a dashboard with no parts and '<Parts>', it returns '<Expected>' with all parts" -TestCases @(
                 @{ Dashboard = [PSCustomObject][ordered]@{
                         _ResourceId = $DashboardResourceId
                         PSTypeName  = "Dashboards"
@@ -25,23 +25,42 @@ InModuleScope PoshArmDeployment {
                         resources   = @()
                         dependsOn   = @()
                     }; 
-                    Part     = [PSCustomObject][ordered]@{
-                        PSTypeName = "DashboardPart"
-                        position   = @{ }
-                        metadata   = @{
-                            inputs   = @()
-                            type     = 'Extension/HubsExtension/PartType/MarkdownPart'
-                            settings = @{
-                                content = @{
-                                    settings = @{
-                                        content  = ''
-                                        title    = 'Test part'
-                                        subtitle = ''
-                                    }
-                                }      
-                            }
-                        }      
-                    };
+                    Parts    = @([PSCustomObject][ordered]@{
+                            PSTypeName = "DashboardPart"
+                            position   = @{ }
+                            metadata   = @{
+                                inputs   = @()
+                                type     = 'Extension/HubsExtension/PartType/MarkdownPart'
+                                settings = @{
+                                    content = @{
+                                        settings = @{
+                                            content  = ''
+                                            title    = 'Test part'
+                                            subtitle = ''
+                                        }
+                                    }      
+                                }
+                            }      
+                        },
+                        [PSCustomObject][ordered]@{
+                            PSTypeName = "DashboardPart"
+                            position   = @{ }
+                            metadata   = @{
+                                inputs            = @(@{
+                                        name  = 'id'
+                                        value = 'resource-id'
+                                    }, @{
+                                        name  = 'Version'
+                                        value = '1.0'
+                                    })
+                                type              = 'Extension/AppInsightsExtension/PartType/AspNetOverviewPinnedPart'
+                                asset             = @{
+                                    idInputName = 'id'
+                                    type        = 'ApplicationInsights'
+                                }
+                                defaultMenuItemId = 'overview'
+                            }      
+                        })
                     Expected = [PSCustomObject][ordered]@{
                         _ResourceId = $DashboardResourceId
                         PSTypeName  = "Dashboards"
@@ -72,6 +91,25 @@ InModuleScope PoshArmDeployment {
                                                 }
                                             }      
                                         }
+                                        1 = [PSCustomObject][ordered]@{
+                                            PSTypeName = "DashboardPart"
+                                            position   = @{ }
+                                            metadata   = @{
+                                                inputs            = @(@{
+                                                        name  = 'id'
+                                                        value = 'resource-id'
+                                                    }, @{
+                                                        name  = 'Version'
+                                                        value = '1.0'
+                                                    })
+                                                type              = 'Extension/AppInsightsExtension/PartType/AspNetOverviewPinnedPart'
+                                                asset             = @{
+                                                    idInputName = 'id'
+                                                    type        = 'ApplicationInsights'
+                                                }
+                                                defaultMenuItemId = 'overview'
+                                            }      
+                                        }
                                     }
                                 }
                             }
@@ -81,9 +119,9 @@ InModuleScope PoshArmDeployment {
                     }
                 }
             ) {
-                param($Dashboard, $Part, $Expected)
+                param($Dashboard, $Parts, $Expected)
 
-                $actual = Add-ArmDashboardsPartsElement -Dashboards $Dashboard -Part $Part
+                $actual = $Dashboard | Add-ArmDashboardsPartsElement -Part $Parts
                 ($actual | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
                 | Should -Be ($Expected | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
             }
@@ -123,7 +161,8 @@ InModuleScope PoshArmDeployment {
                         }
                         resources   = @()
                         dependsOn   = @()
-                    }; Part  = [PSCustomObject][ordered]@{
+                    }
+                    Part     = [PSCustomObject][ordered]@{
                         PSTypeName = "DashboardPart"
                         position   = @{ }
                         metadata   = @{
@@ -200,9 +239,9 @@ InModuleScope PoshArmDeployment {
                     }
                 }
             ) {
-                param($Dashboard, $Part, $Expected)
+                param($Dashboard, $Parts, $Expected)
 
-                $actual = Add-ArmDashboardsPartsElement -Dashboards $Dashboard -Part $Part
+                $actual = $Dashboard | Add-ArmDashboardsPartsElement -Part $Parts
                 ($actual | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
                 | Should -Be ($Expected | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
             }

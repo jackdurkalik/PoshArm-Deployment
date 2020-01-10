@@ -14,9 +14,6 @@ function New-ArmDashboardsAnalyticsChart {
     [string]
     [Parameter(Mandatory)]
     $Query,
-    [PSObject]
-    [Parameter(Mandatory)]
-    $Dimensions,
     [string]
     [Parameter(Mandatory)]
     $ResourceType,
@@ -32,7 +29,7 @@ function New-ArmDashboardsAnalyticsChart {
   If ($PSCmdlet.ShouldProcess("Adding AnalyticsChartsPart to Dashboards")) {
     $SourceResourceName = $Source.Name
     $SourceResourceId = $Source._ResourceId
-    $QuickPulse = [PSCustomObject][ordered]@{
+    $AnalyticsChart = [PSCustomObject][ordered]@{
       PSTypeName = "DashboardPart"
       position   = @{ }
       metadata   = @{
@@ -47,9 +44,6 @@ function New-ArmDashboardsAnalyticsChart {
           }, @{
             name  = 'Query'
             value = $Query
-          }, @{
-            name  = 'Dimensions'
-            value = $Dimensions
           }, @{
             name  = 'Version'
             value = 'v1.0'
@@ -77,6 +71,7 @@ function New-ArmDashboardsAnalyticsChart {
         }
       }      
     }
-    return $QuickPulse
+    $AnalyticsChart.PSTypeNames.Insert(0, 'AnalyticsChart')
+    return $AnalyticsChart
   }  
 }

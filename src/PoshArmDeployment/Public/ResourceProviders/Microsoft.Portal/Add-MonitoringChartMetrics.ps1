@@ -1,7 +1,10 @@
-function New-MonitoringChartMetrics {
+function Add-MonitoringChartMetrics {
   [CmdletBinding(SupportsShouldProcess = $true)]
-  [OutputType("ChartMetric")]
+  [OutputType("MonitoringChart")]
   param(
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [PSTypeName("MonitoringChart")]
+    $Chart,
     [Parameter(Mandatory)]
     [string]
     $Id,
@@ -43,7 +46,9 @@ function New-MonitoringChartMetrics {
         $metric.metricVisualization | Add-Member -MemberType NoteProperty -Name "color" -Value $Color 
       }
 
-      return $metric
+      $Chart.metadata.inputs[0].value.chart.metrics += $metric
+
+      return $Chart
     }
   }
 }

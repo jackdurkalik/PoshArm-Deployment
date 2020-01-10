@@ -1,7 +1,10 @@
-function New-MonitoringChartVisualization {
+function Set-MonitoringChartVisualization {
   [CmdletBinding(SupportsShouldProcess = $true)]
-  [OutputType("ChartVisualization")]
+  [OutputType("MonitoringChart")]
   param(
+    [PSTypeName("MonitoringChart")]
+    [Parameter(Mandatory, ValueFromPipeline)]
+    $Chart,
     [Parameter(Mandatory)]
     [int]
     $ChartType,
@@ -46,7 +49,9 @@ function New-MonitoringChartVisualization {
         } 
       }
       
-      return $visualization
+      $Chart.metadata.inputs[0].value.chart.visualization = $visualization
+
+      return $Chart
     }
   }
 }
