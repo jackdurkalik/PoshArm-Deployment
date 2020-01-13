@@ -1,17 +1,16 @@
 function New-ArmDashboardsMonitorChart {
   [CmdletBinding(SupportsShouldProcess = $true)]
-  [OutputType("DashboardPart")]
+  [OutputType("MonitoringChart")]
   Param(
     [string]
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, ValueFromPipeline)]
     $Title
   )
 
   If ($PSCmdlet.ShouldProcess("Adding MonitorChartPart to Dashboards")) {
     $MonitorChart = [PSCustomObject][ordered]@{
-      PSTypeName = "DashboardPart"
-      position   = @{ }
-      metadata   = @{
+      position = @{ }
+      metadata = @{
         inputs = @(@{
             name  = 'options'
             value = @{
@@ -26,7 +25,10 @@ function New-ArmDashboardsMonitorChart {
         type   = 'Extension/HubsExtension/PartType/MonitorChartPart'  
       }    
     }
+
+    $MonitorChart.PSTypeNames.Insert(0, 'DashboardPart')
     $MonitorChart.PSTypeNames.Insert(0, 'MonitoringChart')
+
     return $MonitorChart
   }  
 }
