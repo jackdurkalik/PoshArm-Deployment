@@ -12,9 +12,8 @@ function Set-OpenApplicationInsightsBladeOnClick {
     [string]
     $MenuId)
   Process {
-    If ($PSCmdlet.ShouldProcess("Creating OpenBladeOnClick")) {
-      $openBladeOnClick = [PSCustomObject]@{ 
-        PSTypeName       = "OpenBladeOnClick"
+    If ($PSCmdlet.ShouldProcess("Setting OpenBladeOnClick")) {
+      $openBladeOnClick = [PSCustomObject]@{
         openBlade        = $true
         destinationBlade = @{ 
           extensionName = 'HubsExtension'
