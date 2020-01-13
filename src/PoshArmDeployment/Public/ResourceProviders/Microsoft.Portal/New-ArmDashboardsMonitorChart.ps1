@@ -9,8 +9,9 @@ function New-ArmDashboardsMonitorChart {
 
   If ($PSCmdlet.ShouldProcess("Creating MonitorChartPart")) {
     $MonitorChart = [PSCustomObject][ordered]@{
-      position = @{ }
-      metadata = @{
+      PSTypeName = 'DashboardPart'
+      position   = @{ }
+      metadata   = @{
         inputs = @(@{
             name  = 'options'
             value = @{
@@ -26,7 +27,6 @@ function New-ArmDashboardsMonitorChart {
       }    
     }
 
-    $MonitorChart.PSTypeNames.Insert(0, 'DashboardPart')
     $MonitorChart.PSTypeNames.Insert(0, 'MonitoringChart')
 
     return $MonitorChart

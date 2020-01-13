@@ -171,8 +171,8 @@ InModuleScope PoshArmDeployment {
         Invoke-IntegrationTest -ArmResourcesScriptBlock `
         {
           $part = New-ArmDashboardsMonitorChart -Title 'Service Bus Requests' `
-          | Add-MonitoringChartMetrics -ResourceDisplayName 'serviceBusName' -Namespace 'microsoft.servicebus/namespaces' `
-            -Name 'IncomingRequests' -Id 'ServiceBusId' -DisplayName 'Incoming Requests' -AggregationType 1
+          | Add-MonitoringChartMetrics -ResourceDisplayName $ExpectedResourceDisplayName -Namespace $ExpectedNamespace `
+            -Name $ExpectedName -Id $ApplicationInsights._ResourceId -DisplayName $ExpectedDisplayName -AggregationType $ExpectedAggregationType
 
           New-ArmResourceName "microsoft.portal/dashboards" `
           | New-ArmDashboardsResource -Location 'centralus' `
