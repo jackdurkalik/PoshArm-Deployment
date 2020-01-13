@@ -2,7 +2,7 @@ function New-ArmDashboardsAnalyticsChart {
   [CmdletBinding(SupportsShouldProcess = $true)]
   [OutputType("DashboardPart")]
   Param(
-    [PSCustomObject]
+    [PSTypeName('ArmResource')]
     [Parameter(Mandatory)]
     $Source,
     [string]
@@ -26,7 +26,7 @@ function New-ArmDashboardsAnalyticsChart {
     $SubTitle = ''
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding AnalyticsChartsPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating AnalyticsChartsPart")) {
     $SourceResourceName = $Source.Name
     $SourceResourceId = $Source._ResourceId
     $AnalyticsChart = [PSCustomObject][ordered]@{

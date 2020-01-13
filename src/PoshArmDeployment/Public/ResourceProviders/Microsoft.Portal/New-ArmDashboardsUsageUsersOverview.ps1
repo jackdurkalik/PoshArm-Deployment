@@ -13,7 +13,7 @@ function New-ArmDashboardsUsageUsersOverview {
     $ResourceGroupName
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding UsageUsersOverviewPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating UsageUsersOverviewPart")) {
     $Now = Get-Date
     $ApplicationInsightsResourceName = $ApplicationInsights.Name
     $UsageUserOverview = [PSCustomObject][ordered]@{

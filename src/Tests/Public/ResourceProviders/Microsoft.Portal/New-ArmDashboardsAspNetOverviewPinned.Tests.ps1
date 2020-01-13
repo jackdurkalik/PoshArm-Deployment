@@ -38,6 +38,34 @@ InModuleScope PoshArmDeployment {
         ($actual | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
         | Should -Be ($Expected | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
       }     
+
+      $ExpectedException = "MismatchedPSTypeName"
+
+      It "Given a parameter of incorrect type, it throws '<Expected>'" -TestCases @(
+        @{ 
+          ApplicationInsights = "ApplicationInsights"
+          Expected            = $ExpectedException
+        }
+        @{
+          ApplicationInsights = "ApplicationInsights"
+          Expected            = $ExpectedException
+        }) { param($ApplicationInsights, $Expected)
+        { New-ArmDashboardsAspNetOverviewPinned -ApplicationInsights $ApplicationInsights } | Should -Throw -ErrorId $Expected
+      }
+    }
+
+    Context "Integration tests" {
+      It "Default" -Test {
+        Invoke-IntegrationTest -ArmResourcesScriptBlock `
+        {
+          $part = New-ArmDashboardsAspNetOverviewPinned -ApplicationInsights $ApplicationInsights
+
+          New-ArmResourceName "microsoft.portal/dashboards" `
+          | New-ArmDashboardsResource -Location 'centralus' `
+          | Add-ArmDashboardsPartsElement -Part $part `
+          | Add-ArmResource
+        }
+      }
     }
   }
 }

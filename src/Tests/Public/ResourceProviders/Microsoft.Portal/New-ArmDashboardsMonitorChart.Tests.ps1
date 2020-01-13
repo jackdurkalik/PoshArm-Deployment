@@ -4,29 +4,13 @@ Import-Module "$ScriptDir/../../../../PoshArmDeployment" -Force
 InModuleScope PoshArmDeployment {
   Describe "New-ArmDashboardsMonitorChart" {
     $Depth = 99
-    $ExpectedMetrics = @(
-      [PSCustomObject]@{
-        PSTypeName = "ChartMetric"
-        value      = "FirstMetric" 
-      }, 
-      [PSCustomObject]@{ 
-        PSTypeName = "ChartMetric"
-        value      = "SecondMetric" 
-      })
-    $ExpectedVisualization = [PSCustomObject]@{ 
-      PSTypeName          = "ChartVisualization"
-      charType            = 2
-      legendVisualization = @{ isVisible = $true }
-    }
     $ExpectedTitle = "SomeTitle"
 
     Context "Unit tests" {
-      It "Given valid parameters it returns '<Expected>'" -TestCases @(
+      It "Given <Title> it returns '<Expected>'" -TestCases @(
         @{  
-          Metrics       = $ExpectedMetrics
-          Visualization = $ExpectedVisualization
-          Title         = $ExpectedTitle
-          Expected      = [PSCustomObject][ordered]@{
+          Title    = $ExpectedTitle
+          Expected = [PSCustomObject][ordered]@{
             PSTypeName = "DashboardPart"
             position   = @{ }
             metadata   = @{
@@ -34,10 +18,10 @@ InModuleScope PoshArmDeployment {
                   name  = 'options'
                   value = @{
                     chart = @{
-                      metrics          = $ExpectedMetrics
+                      metrics          = @()
                       title            = $ExpectedTitle
-                      visualization    = $ExpectedVisualization
-                      openBladeOnClick = @{ }
+                      visualization    = [PSCustomObject]@{ }
+                      openBladeOnClick = [PSCustomObject]@{ }
                     }
                   }
                 })
@@ -47,14 +31,10 @@ InModuleScope PoshArmDeployment {
         }
       ) {
         param(
-          $Metrics,
-          $Visualization,
           $Title,
           $Expected)               
         
-        $actual = New-ArmDashboardsMonitorChart -Metrics $Metrics `
-          -Visualization $Visualization `
-          -Title $Title
+        $actual = $Title | New-ArmDashboardsMonitorChart
 
         ($actual | ConvertTo-Json -Compress -Depth $Depth | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
         | Should -BeExactly ($Expected | ConvertTo-Json -Compress -Depth $Depth | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
@@ -65,14 +45,11 @@ InModuleScope PoshArmDeployment {
       It "Default" -Test {
         Invoke-IntegrationTest -ArmResourcesScriptBlock `
         {
-          $Dashboards = New-ArmResourceName microsoft.portal/dashboards `
-          | New-ArmDashboardsResource -Location 'centralus'
-
-          $DashboardPart = New-ArmDashboardsMonitorChart -Metrics $ExpectedMetrics `
-            -Visualization $ExpectedVisualization `
-            -Title $ExpectedTitle
+          $part = New-ArmDashboardsMonitorChart -Title $ExpectedTitle
               
-          Add-ArmDashboardsPartsElement -Dashboards $Dashboards -Part $DashboardPart `
+          New-ArmResourceName "microsoft.portal/dashboards" `
+          | New-ArmDashboardsResource -Location 'centralus' `
+          | Add-ArmDashboardsPartsElement -Part $part `
           | Add-ArmResource
         }
       }

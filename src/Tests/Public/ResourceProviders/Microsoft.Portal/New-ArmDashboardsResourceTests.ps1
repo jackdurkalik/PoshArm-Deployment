@@ -4,46 +4,43 @@ Import-Module "$ScriptDir/../../../../PoshArmDeployment" -Force
 InModuleScope PoshArmDeployment {
   Describe "New-ArmDashboardsResource" {
     $Depth = 99
-    $ResourceType = 'microsoft.portal/dashboards'
-    BeforeEach {
-      $ResourceName = New-ArmResourceName $ResourceType `
-    }
-
+    $ExpectedResourceName = New-ArmResourceName 'microsoft.portal/dashboards'
     $ExpectedApiVersion = "SomeApiVersion"
     $ExpectedLocation = "canadacentral"
     
     Context "Unit tests" {
       It "Given valid resource name it returns '<Expected>'" -TestCases @(
         @{  
-          ApiVersion = $ExpectedApiVersion
-          Location   = $ExpectedLocation
+          ApiVersion   = $ExpectedApiVersion
+          Location     = $ExpectedLocation
+          ResourceName = $ExpectedResourceName
+          Expected     = [PSCustomObject][ordered]@{
+            _ResourceId = $ExpectedResourceName | New-ArmFunctionResourceId -ResourceType 'microsoft.portal/dashboards'
+            PSTypeName  = "Dashboards"
+            type        = 'microsoft.portal/dashboards'
+            name        = $ExpectedResourceName
+            apiVersion  = $ApiVersion
+            location    = $Location
+            metadata    = @{ }
+            properties  = [PSCustomObject]@{ 
+              lenses = [PSCustomObject]@{
+                0 = [PSCustomObject]@{ 
+                  order = 0
+                  parts = [PSCustomObject]@{ }
+                }
+              }
+            }
+            resources   = @()
+            dependsOn   = @()
+          }
         }
       ) {
         param(
           $ApiVersion,
-          $Location
+          $Location,
+          $ResourceName,
+          $Expected
         )
-                
-        $ExpectedDashboardResourceId = $ResourceName | New-ArmFunctionResourceId -ResourceType 'microsoft.portal/dashboards'
-        $Expected = [PSCustomObject][ordered]@{
-          _ResourceId = $ExpectedDashboardResourceId
-          PSTypeName  = "Dashboards"
-          type        = 'microsoft.portal/dashboards'
-          name        = $ResourceName
-          apiVersion  = $ApiVersion
-          location    = $Location
-          metadata    = @{ }
-          properties  = [PSCustomObject]@{ 
-            lenses = [PSCustomObject]@{
-              0 = [PSCustomObject]@{ 
-                order = 0
-                parts = [PSCustomObject]@{ }
-              }
-            }
-          }
-          resources   = @()
-          dependsOn   = @()
-        }
         
         $actual = $ResourceName | New-ArmDashboardsResource -ApiVersion $ApiVersion -Location $Location
 

@@ -13,7 +13,7 @@ function New-ArmDashboardsWebTestsPinned {
     $ResourceGroupName
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding WebTestsPinnedPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating WebTestsPinnedPart")) {
     $Now = Get-Date
     $ApplicationInsightsResourceName = $ApplicationInsights.Name
     $WebTests = [PSCustomObject][ordered]@{

@@ -18,31 +18,19 @@ InModuleScope PoshArmDeployment {
     $ExpectedColor2 = '#47BDF9'
     $ExpectedResourceDisplayName2 = 'SomeResourceName2'
 
+    BeforeEach {
+      $title = 'chart title'
+      $Chart = $title | New-ArmDashboardsMonitorChart
+      $ExpectedChart = $Chart.PSObject.Copy()
+    }    
+
     $ApplicationInsights = New-ArmResourceName "microsoft.insights/components" `
     | New-ArmApplicationInsightsResource -Location "SomeLocation"
 
     Context "Unit tests" {
       It "Given an '<Id>', '<Name>', '<DisplayName>', '<Namespace>', '<AggregationType>', '<ResourceDisplayName>',
-       '<Color>' and a <Chart> it returns '<Expected>' " -TestCases @(
+       '<Color>' it returns expected chart" -TestCases @(
         @{ 
-          Chart               = [PSCustomObject][ordered]@{
-            PSTypeName = "MonitoringChart"
-            position   = @{ }
-            metadata   = @{
-              inputs = @(@{
-                  name  = 'options'
-                  value = @{
-                    chart = @{
-                      metrics          = @()
-                      title            = $ExpectedTitle
-                      visualization    = $ExpectedVisualization
-                      openBladeOnClick = @{ }
-                    }
-                  }
-                })
-              type   = 'Extension/HubsExtension/PartType/MonitorChartPart'  
-            }    
-          }
           Color               = $ExpectedColor
           ResourceDisplayName = $ExpectedResourceDisplayName
           Namespace           = $ExpectedNamespace
@@ -50,123 +38,57 @@ InModuleScope PoshArmDeployment {
           Id                  = $ApplicationInsights._ResourceId
           DisplayName         = $ExpectedDisplayName
           AggregationType     = $ExpectedAggregationType 
-          Expected            = [PSCustomObject][ordered]@{
-            PSTypeName = "MonitoringChart"
-            position   = @{ }
-            metadata   = @{
-              inputs = @(@{
-                  name  = 'options'
-                  value = @{
-                    chart = @{
-                      metrics          = @([PSCustomObject]@{
-                          PSTypeName          = "ChartMetric"
-                          resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
-                          name                = $ExpectedName;
-                          aggregationType     = $ExpectedAggregationType;
-                          namespace           = $ExpectedNamespace;
-                          metricVisualization = [PSCustomObject]@{              
-                            displayName         = $ExpectedDisplayName        
-                            resourceDisplayName = $ExpectedResourceDisplayName   
-                            color               = $ExpectedColor 
-                          }
-                        })
-                      title            = $ExpectedTitle
-                      visualization    = $ExpectedVisualization
-                      openBladeOnClick = @{ }
-                    }
-                  }
-                })
-              type   = 'Extension/HubsExtension/PartType/MonitorChartPart'  
-            }    
-          }
-        }
+          ExpectedMetric      = [PSCustomObject]@{
+            PSTypeName          = "ChartMetric"
+            resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
+            name                = $ExpectedName;
+            aggregationType     = $ExpectedAggregationType;
+            namespace           = $ExpectedNamespace;
+            metricVisualization = [PSCustomObject]@{              
+              displayName         = $ExpectedDisplayName        
+              resourceDisplayName = $ExpectedResourceDisplayName   
+              color               = $ExpectedColor 
+            }
+          } 
+        }      
       ) {
-        param($Chart, $Color, $ResourceDisplayName, $Namespace, $Name, $Id, $DisplayName, $AggregationType, $Expected)
+        param($Color, $ResourceDisplayName, $Namespace, $Name, $Id, $DisplayName, $AggregationType, $ExpectedMetric)
+
+        $ExpectedChart.metadata.inputs[0].value.chart.metrics += $ExpectedMetric
 
         $actual = $Chart | Add-MonitoringChartMetrics -Color $Color -Namespace $Namespace -Name $Name -Id $Id -DisplayName $DisplayName -AggregationType $AggregationType -ResourceDisplayName $ResourceDisplayName
         ($actual | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
-        | Should -Be ($Expected | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+        | Should -Be ($ExpectedChart | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
       }
-      It "Given an '<Chart>', '<Id>', '<Name>', '<DisplayName>', '<Namespace>', '<AggregationType>' it returns '<Expected>' without resourceDisplayName or color" -TestCases @(
+      It "Given an '<Id>', '<Name>', '<DisplayName>', '<Namespace>', '<AggregationType>' it returns chart without resourceDisplayName or color" -TestCases @(
         @{ 
-          Chart           = [PSCustomObject][ordered]@{
-            PSTypeName = "MonitoringChart"
-            position   = @{ }
-            metadata   = @{
-              inputs = @(@{
-                  name  = 'options'
-                  value = @{
-                    chart = @{
-                      metrics          = @()
-                      title            = $ExpectedTitle
-                      visualization    = $ExpectedVisualization
-                      openBladeOnClick = @{ }
-                    }
-                  }
-                })
-              type   = 'Extension/HubsExtension/PartType/MonitorChartPart'  
-            }    
-          }
           Namespace       = $ExpectedNamespace
           Name            = $ExpectedName
           Id              = $ApplicationInsights._ResourceId
           DisplayName     = $ExpectedDisplayName
           AggregationType = $ExpectedAggregationType 
-          Expected        = [PSCustomObject][ordered]@{
-            PSTypeName = "MonitoringChart"
-            position   = @{ }
-            metadata   = @{
-              inputs = @(@{
-                  name  = 'options'
-                  value = @{
-                    chart = @{
-                      metrics          = @([PSCustomObject]@{
-                          PSTypeName          = "ChartMetric"
-                          resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
-                          name                = $ExpectedName;
-                          aggregationType     = $ExpectedAggregationType;
-                          namespace           = $ExpectedNamespace;
-                          metricVisualization = [PSCustomObject]@{              
-                            displayName = $ExpectedDisplayName        
-                          }
-                        })
-                      title            = $ExpectedTitle
-                      visualization    = $ExpectedVisualization
-                      openBladeOnClick = @{ }
-                    }
-                  }
-                })
-              type   = 'Extension/HubsExtension/PartType/MonitorChartPart'  
-            }    
+          ExpectedMetric  = [PSCustomObject]@{
+            PSTypeName          = "ChartMetric"
+            resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
+            name                = $ExpectedName;
+            aggregationType     = $ExpectedAggregationType;
+            namespace           = $ExpectedNamespace;
+            metricVisualization = [PSCustomObject]@{              
+              displayName = $ExpectedDisplayName        
+            }
           }
         }
       ) {
-        param($Chart, $Namespace, $Name, $Id, $DisplayName, $AggregationType, $Expected)
+        param($Namespace, $Name, $Id, $DisplayName, $AggregationType, $ExpectedMetric)
+
+        $ExpectedChart.metadata.inputs[0].value.chart.metrics += $ExpectedMetric
 
         $actual = $Chart | Add-MonitoringChartMetrics -Namespace $Namespace -Name $Name -Id $Id -DisplayName $DisplayName -AggregationType $AggregationType
         ($actual | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
-        | Should -Be ($Expected | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+        | Should -Be ($ExpectedChart | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
       }
       It "Given multiple metrics they all get all added to '<Expected>' " -TestCases @(
         @{ 
-          Chart                = [PSCustomObject][ordered]@{
-            PSTypeName = "MonitoringChart"
-            position   = @{ }
-            metadata   = @{
-              inputs = @(@{
-                  name  = 'options'
-                  value = @{
-                    chart = @{
-                      metrics          = @()
-                      title            = $ExpectedTitle
-                      visualization    = $ExpectedVisualization
-                      openBladeOnClick = @{ }
-                    }
-                  }
-                })
-              type   = 'Extension/HubsExtension/PartType/MonitorChartPart'  
-            }    
-          }
           Color                = $ExpectedColor
           ResourceDisplayName  = $ExpectedResourceDisplayName
           Namespace            = $ExpectedNamespace
@@ -178,61 +100,86 @@ InModuleScope PoshArmDeployment {
           ResourceDisplayName2 = $ExpectedResourceDisplayName2
           Namespace2           = $ExpectedNamespace2
           Name2                = $ExpectedName2
-          Id2                  = $ApplicationInsights._ResourceId
           DisplayName2         = $ExpectedDisplayName2
           AggregationType2     = $ExpectedAggregationType2
-          Expected             = [PSCustomObject][ordered]@{
-            PSTypeName = "MonitoringChart"
-            position   = @{ }
-            metadata   = @{
-              inputs = @(@{
-                  name  = 'options'
-                  value = @{
-                    chart = @{
-                      metrics          = @([PSCustomObject]@{
-                          PSTypeName          = "DashboardMetric"
-                          resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
-                          name                = $ExpectedName;
-                          aggregationType     = $ExpectedAggregationType;
-                          namespace           = $ExpectedNamespace;
-                          metricVisualization = [PSCustomObject]@{              
-                            displayName         = $ExpectedDisplayName        
-                            resourceDisplayName = $ExpectedResourceDisplayName   
-                            color               = $ExpectedColor 
-                          }
-                        }, [PSCustomObject]@{
-                          PSTypeName          = "DashboardMetric"
-                          resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
-                          name                = $ExpectedName2
-                          aggregationType     = $ExpectedAggregationType2
-                          namespace           = $ExpectedNamespace2
-                          metricVisualization = [PSCustomObject]@{              
-                            displayName         = $ExpectedDisplayName2        
-                            resourceDisplayName = $ExpectedResourceDisplayName2   
-                            color               = $ExpectedColor2
-                          }
-                        })
-                      title            = $ExpectedTitle
-                      visualization    = $ExpectedVisualization
-                      openBladeOnClick = @{ }
-                    }
-                  }
-                })
-              type   = 'Extension/HubsExtension/PartType/MonitorChartPart'  
-            }    
-          }
+          ExpectedMetrics      = @([PSCustomObject]@{
+              PSTypeName          = "DashboardMetric"
+              resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
+              name                = $ExpectedName;
+              aggregationType     = $ExpectedAggregationType;
+              namespace           = $ExpectedNamespace;
+              metricVisualization = [PSCustomObject]@{              
+                displayName         = $ExpectedDisplayName        
+                resourceDisplayName = $ExpectedResourceDisplayName   
+                color               = $ExpectedColor 
+              }
+            }, [PSCustomObject]@{
+              PSTypeName          = "DashboardMetric"
+              resourceMetadata    = @{ id = $ApplicationInsights._ResourceId }
+              name                = $ExpectedName2
+              aggregationType     = $ExpectedAggregationType2
+              namespace           = $ExpectedNamespace2
+              metricVisualization = [PSCustomObject]@{              
+                displayName         = $ExpectedDisplayName2        
+                resourceDisplayName = $ExpectedResourceDisplayName2   
+                color               = $ExpectedColor2
+              }
+            })
         }
       ) {
-        param($Chart, $Color, $ResourceDisplayName, $Namespace, $Name, $Id, $DisplayName, $AggregationType,
-          $Color2, $ResourceDisplayName2, $Namespace2, $Name2, $Id2, $DisplayName2, $AggregationType2, $Expected)
+        param($Color, $ResourceDisplayName, $Namespace, $Name, $Id, $DisplayName, $AggregationType,
+          $Color2, $ResourceDisplayName2, $Namespace2, $Name2, $DisplayName2, $AggregationType2, $ExpectedMetrics)
+
+        $ExpectedChart.metadata.inputs[0].value.chart.metrics = $ExpectedMetrics
 
         $actual = $Chart | Add-MonitoringChartMetrics -Color $Color -Namespace $Namespace -Name $Name -Id $Id `
           -DisplayName $DisplayName -AggregationType $AggregationType -ResourceDisplayName $ResourceDisplayName `
-        | Add-MonitoringChartMetrics -Color $Color2 -Namespace $Namespace2 -Name $Name2 -Id $Id2 -DisplayName $DisplayName2 `
+        | Add-MonitoringChartMetrics -Color $Color2 -Namespace $Namespace2 -Name $Name2 -Id $Id -DisplayName $DisplayName2 `
           -AggregationType $AggregationType2 -ResourceDisplayName $ResourceDisplayName2
         ($actual | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
-        | Should -Be ($Expected | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
-      }        
+        | Should -Be ($ExpectedChart | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
+      }
+      
+      $ExpectedException = "MismatchedPSTypeName"
+
+      It "Given a parameter of incorrect type, it throws '<Expected>'" -TestCases @(
+        @{ 
+          Chart           = "Chart"
+          Namespace       = $ExpectedNamespace
+          Name            = $ExpectedName
+          Id              = $ApplicationInsights._ResourceId
+          DisplayName     = $ExpectedDisplayName
+          AggregationType = $ExpectedAggregationType 
+          Expected        = $ExpectedException
+        }
+        @{ 
+          Chart           = [PSCustomObject]@{Name = "Value" }
+          Namespace       = $ExpectedNamespace
+          Name            = $ExpectedName
+          Id              = $ApplicationInsights._ResourceId
+          DisplayName     = $ExpectedDisplayName
+          AggregationType = $ExpectedAggregationType 
+          Expected        = $ExpectedException
+        }) { param($Chart, $Namespace, $Name, $Id, $DisplayName, $AggregationType, $ExpectedMetric)
+        { Add-MonitoringChartMetrics -Chart $Chart -Namespace $Namespace -Name $Name -Id $Id -DisplayName $DisplayName `
+            -AggregationType $AggregationType } | Should -Throw -ErrorId $Expected
+      }
+    }
+
+    Context "Integration tests" {
+      It "Default" -Test {
+        Invoke-IntegrationTest -ArmResourcesScriptBlock `
+        {
+          $part = New-ArmDashboardsMonitorChart -Title 'Service Bus Requests' `
+          | Add-MonitoringChartMetrics -ResourceDisplayName 'serviceBusName' -Namespace 'microsoft.servicebus/namespaces' `
+            -Name 'IncomingRequests' -Id 'ServiceBusId' -DisplayName 'Incoming Requests' -AggregationType 1
+
+          New-ArmResourceName "microsoft.portal/dashboards" `
+          | New-ArmDashboardsResource -Location 'centralus' `
+          | Add-ArmDashboardsPartsElement -Part $part `
+          | Add-ArmResource
+        }
+      }
     }
   }
 }

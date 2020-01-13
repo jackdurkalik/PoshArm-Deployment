@@ -13,7 +13,7 @@ function New-ArmDashboardsApplicationMap {
     $ResourceGroupName
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding ApplicationMapPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating ApplicationMapPart")) {
     $Now = Get-Date
     $ApplicationInsightsResourceName = $ApplicationInsights.Name
     $ApplicationMap = [PSCustomObject][ordered]@{

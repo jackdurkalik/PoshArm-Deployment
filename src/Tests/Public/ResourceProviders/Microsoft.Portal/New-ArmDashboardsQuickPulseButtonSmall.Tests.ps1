@@ -5,10 +5,8 @@ InModuleScope PoshArmDeployment {
   Describe "New-ArmDashboardsQuickPulseButtonSmall" {
     $Depth = 99
     $ExpectedResourceName = 'SomeApplicationInsight'
-    BeforeEach {
-      $ApplicationInsights = New-ArmApplicationInsightsResource -Name $ExpectedResourceName
-      $Expected = New-ArmApplicationInsightsResource -Name $ExpectedResourceName
-    }
+    $ExpectedApplicationInsights = New-ArmResourceName "microsoft.insights/components" `
+    | New-ArmApplicationInsightsResource -Location "SomeLocation"
 
     $ExpectedSubscriptionId = "SomeId"
     $ExpectedResourceGroupName = "SomeResourceGroup"
@@ -18,37 +16,37 @@ InModuleScope PoshArmDeployment {
         @{  
           SubscriptionId    = $ExpectedSubscriptionId
           ResourceGroupName = $ExpectedResourceGroupName
+          Expected          = [PSCustomObject][ordered]@{
+            PSTypeName = "DashboardPart"
+            position   = @{ }
+            metadata   = @{
+              inputs = @(@{
+                  name  = 'ComponentId'
+                  value = @{
+                    Name           = $ExpectedResourceName
+                    SubscriptionId = $ExpectedSubscriptionId
+                    ResourceGroup  = $ExpectedResourceGroupName
+                  }
+                }, @{
+                  name  = 'ResourceId'
+                  value = $ExpectedApplicationInsights._ResourceId
+                })
+              type   = 'Extension/AppInsightsExtension/PartType/QuickPulseButtonSmallPart'
+              asset  = @{
+                idInputName = 'ComponentId'
+                type        = 'ApplicationInsights'
+              }
+            }      
+          }
         }
       ) {
         param(
           $SubscriptionId,
-          $ResourceGroupName
-        )
-                
-        $Expected = [PSCustomObject][ordered]@{
-          PSTypeName = "DashboardPart"
-          position   = @{ }
-          metadata   = @{
-            inputs = @(@{
-                name  = 'ComponentId'
-                value = @{
-                  Name           = $ExpectedResourceName
-                  SubscriptionId = $ExpectedSubscriptionId
-                  ResourceGroup  = $ExpectedResourceGroupName
-                }
-              }, @{
-                name  = 'ResourceId'
-                value = $ApplicationInsights._ResourceId
-              })
-            type   = 'Extension/AppInsightsExtension/PartType/QuickPulseButtonSmallPart'
-            asset  = @{
-              idInputName = 'ComponentId'
-              type        = 'ApplicationInsights'
-            }
-          }      
-        }
+          $ResourceGroupName,
+          $ApplicationInsights,
+          $Expected
+        )              
         
-
         $actual = New-ArmDashboardsQuickPulseButtonSmall -ApplicationInsights $ApplicationInsights `
           -SubscriptionId $SubscriptionId `
           -ResourceGroupName $ResourceGroupName
@@ -77,14 +75,13 @@ InModuleScope PoshArmDeployment {
         It "Default" -Test {
           Invoke-IntegrationTest -ArmResourcesScriptBlock `
           {
-            $Dashboards = New-ArmResourceName "microsoft.portal/dashboards" `
-            | New-ArmDashboardsResource -Location 'centralus'
-
-            $DashboardPart = New-ArmDashboardsQuickPulseButtonSmall -ApplicationInsights $ApplicationInsights `
+            $part = New-ArmDashboardsQuickPulseButtonSmall -ApplicationInsights $ApplicationInsights `
               -SubscriptionId $ExpectedSubscriptionId `
               -ResourceGroupName $ExpectedResourceGroupName
               
-            Add-ArmDashboardsPartsElement -Dashboards $Dashboards -Part $DashboardPart `
+            New-ArmResourceName "microsoft.portal/dashboards" `
+            | New-ArmDashboardsResource -Location 'centralus' `
+            | Add-ArmDashboardsPartsElement -Part $part `
             | Add-ArmResource
           }
         }

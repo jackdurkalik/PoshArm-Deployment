@@ -13,7 +13,7 @@ function New-ArmDashboardsProactiveDetectionAsync {
     $ResourceGroupName
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding ProactiveDetectionAsyncPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating ProactiveDetectionAsyncPart")) {
     $ApplicationInsightsResourceName = $ApplicationInsights.Name
     $ProactiveDetection = [PSCustomObject][ordered]@{
       PSTypeName = "DashboardPart"

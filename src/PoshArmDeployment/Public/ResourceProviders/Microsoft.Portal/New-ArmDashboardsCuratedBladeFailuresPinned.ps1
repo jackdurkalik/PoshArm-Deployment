@@ -7,7 +7,7 @@ function New-ArmDashboardsCuratedBladeFailuresPinned {
     $ApplicationInsights
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding CuratedBladeFailuresPinnedPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating CuratedBladeFailuresPinnedPart")) {
     $Now = Get-Date
     $ApplicationInsightsResourceId = $ApplicationInsights._ResourceId
     $CuratedBlade = [PSCustomObject][ordered]@{

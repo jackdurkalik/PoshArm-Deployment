@@ -4,14 +4,14 @@ Import-Module "$ScriptDir/../../../../PoshArmDeployment" -Force
 InModuleScope PoshArmDeployment {
   Describe "New-AnalyticsChartDimension" {
     $Depth = 2
-    $ExpectedChartType = 2
+    $ExpectedChartType = 1
     $ExpectedLegendVisible = $false
     $ExpectedLegendPosition = 2
     $ExpectedHideLegendSubtitle = $true
     $ExpectedXIsVisible = $false
-    $ExpectedXAxisType = 2
+    $ExpectedXAxisType = 3
     $ExpectedYIsVisible = $false
-    $ExpectedYAxisType = 1
+    $ExpectedYAxisType = 4
 
     Context "Unit tests" {
       It "Given an '<xName>', '<xType>', '<yName>', '<yType>' and '<aggregation>' it returns '<Expected>' " -TestCases @(

@@ -70,11 +70,10 @@ InModuleScope PoshArmDeployment {
         It "Default" -Test {
           Invoke-IntegrationTest -ArmResourcesScriptBlock `
           {
-            $Dashboards = New-ArmResourceName "microsoft.portal/dashboards" `
-            | New-ArmDashboardsResource -Location 'centralus'
-
-            $DashboardPart = Set-ArmDashboardsPartsPosition -Part $DashboardPart
-            Add-ArmDashboardsPartsElement -Dashboards $Dashboards -Part $DashboardPart `
+            $part = Set-ArmDashboardsPartsPosition -Part $DashboardPart
+            New-ArmResourceName "microsoft.portal/dashboards" `
+            | New-ArmDashboardsResource -Location 'centralus' `
+            | Add-ArmDashboardsPartsElement -Part $part `
             | Add-ArmResource
           }
         }

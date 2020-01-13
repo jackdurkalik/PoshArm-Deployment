@@ -13,7 +13,7 @@ function New-ArmDashboardsQuickPulseButtonSmall {
     $ResourceGroupName
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding QuickPulseButtonSmallPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating QuickPulseButtonSmallPart")) {
     $ApplicationInsightsResourceName = $ApplicationInsights.Name
     $ApplicationInsightsResourceId = $ApplicationInsights._ResourceId
     $QuickPulse = [PSCustomObject][ordered]@{

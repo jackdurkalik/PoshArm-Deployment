@@ -7,7 +7,7 @@ function New-ArmDashboardsAspNetOverviewPinned {
     $ApplicationInsights      
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding AspNetOverviewPinnedPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating AspNetOverviewPinnedPart")) {
     $ApplicationInsightsResourceId = $ApplicationInsights._ResourceId
     $AspNetOverview = [PSCustomObject][ordered]@{
       PSTypeName = "DashboardPart"

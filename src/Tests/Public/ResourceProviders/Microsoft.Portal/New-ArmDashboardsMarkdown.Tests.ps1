@@ -4,12 +4,17 @@ Import-Module "$ScriptDir/../../../../PoshArmDeployment" -Force
 InModuleScope PoshArmDeployment {
   Describe "New-ArmDashboardsMarkdown" {
     $Depth = 4
+
+    $ExpectedContent = 'content'
+    $ExpectedTitle = 'title'
+    $ExpectedSubtitle = 'subtitle'
+
     Context "Unit tests" {
       It "Given a '<Content>', '<Title>', '<Subtitle>' it returns '<Expected>'" -TestCases @(
         @{ 
-          Content  = 'test content'     
-          Title    = 'test title'  
-          Subtitle = 'test subtitle'  
+          Content  = $ExpectedContent    
+          Title    = $ExpectedTitle  
+          Subtitle = $ExpectedSubtitle
           Expected = [PSCustomObject][ordered]@{
             PSTypeName = "DashboardPart"
             position   = @{ }
@@ -19,9 +24,9 @@ InModuleScope PoshArmDeployment {
               settings = @{
                 content = @{
                   settings = @{
-                    content  = 'test content'    
-                    title    = 'test title'  
-                    subtitle = 'test subtitle'  
+                    content  = $ExpectedContent
+                    title    = $ExpectedTitle  
+                    subtitle = $ExpectedSubtitle
                   }
                 }      
               }
@@ -34,7 +39,21 @@ InModuleScope PoshArmDeployment {
         $actual = New-ArmDashboardsMarkdown -Content $Content -Title $Title -Subtitle $Subtitle
         ($actual | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) }) `
         | Should -Be ($Expected | ConvertTo-Json -Depth $Depth -Compress | ForEach-Object { [System.Text.RegularExpressions.Regex]::Unescape($_) })
-      }     
+      }   
+    }
+
+    Context "Integration tests" {
+      It "Default" -Test {
+        Invoke-IntegrationTest -ArmResourcesScriptBlock `
+        {
+          $part = New-ArmDashboardsMarkdown -Content $ExpectedContent -Title $ExpectedTitle -Subtitle $ExpectedSubtitle
+
+          New-ArmResourceName "microsoft.portal/dashboards" `
+          | New-ArmDashboardsResource -Location 'centralus' `
+          | Add-ArmDashboardsPartsElement -Part $part `
+          | Add-ArmResource
+        }
+      }
     }
   }
 }

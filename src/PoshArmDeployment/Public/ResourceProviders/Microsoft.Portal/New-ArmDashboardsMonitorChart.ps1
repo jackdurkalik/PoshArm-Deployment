@@ -3,11 +3,11 @@ function New-ArmDashboardsMonitorChart {
   [OutputType("DashboardPart")]
   Param(
     [string]
-    [Parameter(Mandatory)]
+    [Parameter(Mandatory, ValueFromPipeline)]
     $Title
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding MonitorChartPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating MonitorChartPart")) {
     $MonitorChart = [PSCustomObject][ordered]@{
       PSTypeName = "DashboardPart"
       position   = @{ }

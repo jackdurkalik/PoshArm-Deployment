@@ -10,7 +10,7 @@ function New-ArmDashboardsMarkdown {
     $Subtitle = ''
   )
 
-  If ($PSCmdlet.ShouldProcess("Adding MarkdownPart to Dashboards")) {
+  If ($PSCmdlet.ShouldProcess("Creating MarkdownPart")) {
     $Markdown = [PSCustomObject][ordered]@{
       PSTypeName = "DashboardPart"
       position   = @{ }
