@@ -6,8 +6,9 @@ InModuleScope PoshArmDeployment {
     $Depth = 99
     $ExpectedSubscriptionId = "SomeId"
     $ExpectedResourceGroupName = "SomeResourceGroup"
-    $ExpectedApplicationInsights = New-ArmResourceName "microsoft.insights/components" `
-    | New-ArmApplicationInsightsResource -Location "SomeLocation"
+    $ExpectedResourceName = 'SomeApplicationInsight'
+    $ExpectedApplicationInsights = New-ArmApplicationInsightsResource -Name $ExpectedResourceName
+
     Context "Unit tests" {
       It "Given valid ApplicationInsights object it returns '<Expected>'" -TestCases @(
         @{  
@@ -74,7 +75,7 @@ InModuleScope PoshArmDeployment {
         It "Default" -Test {
           Invoke-IntegrationTest -ArmResourcesScriptBlock `
           {
-            $part = New-ArmDashboardsProactiveDetectionAsync -ApplicationInsights $ApplicationInsights `
+            $part = New-ArmDashboardsProactiveDetectionAsync -ApplicationInsights $ExpectedApplicationInsights `
               -SubscriptionId $ExpectedSubscriptionId `
               -ResourceGroupName $ExpectedResourceGroupName
               

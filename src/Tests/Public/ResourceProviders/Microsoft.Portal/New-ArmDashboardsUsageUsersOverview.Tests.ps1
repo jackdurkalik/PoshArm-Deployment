@@ -88,7 +88,7 @@ InModuleScope PoshArmDeployment {
         It "Default" -Test {
           Invoke-IntegrationTest -ArmResourcesScriptBlock `
           {
-            $part = New-ArmDashboardsUsageUsersOverview -ApplicationInsights $ApplicationInsights `
+            $part = New-ArmDashboardsUsageUsersOverview -ApplicationInsights $ExpectedApplicationInsights `
               -SubscriptionId $ExpectedSubscriptionId `
               -ResourceGroupName $ExpectedResourceGroupName
               
