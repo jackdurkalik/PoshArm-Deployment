@@ -5,8 +5,7 @@ InModuleScope PoshArmDeployment {
   Describe "New-ArmDashboardsQuickPulseButtonSmall" {
     $Depth = 99
     $ExpectedResourceName = 'SomeApplicationInsight'
-    $ExpectedApplicationInsights = New-ArmResourceName "microsoft.insights/components" `
-    | New-ArmApplicationInsightsResource -Location "SomeLocation"
+    $ExpectedApplicationInsights = New-ArmApplicationInsightsResource -Name $ExpectedResourceName
 
     $ExpectedSubscriptionId = "SomeId"
     $ExpectedResourceGroupName = "SomeResourceGroup"
@@ -14,9 +13,10 @@ InModuleScope PoshArmDeployment {
     Context "Unit tests" {
       It "Given valid ApplicationInsights object it returns '<Expected>'" -TestCases @(
         @{  
-          SubscriptionId    = $ExpectedSubscriptionId
-          ResourceGroupName = $ExpectedResourceGroupName
-          Expected          = [PSCustomObject][ordered]@{
+          SubscriptionId      = $ExpectedSubscriptionId
+          ResourceGroupName   = $ExpectedResourceGroupName
+          ApplicationInsights = $ExpectedApplicationInsights
+          Expected            = [PSCustomObject][ordered]@{
             PSTypeName = "DashboardPart"
             position   = @{ }
             metadata   = @{
@@ -75,7 +75,7 @@ InModuleScope PoshArmDeployment {
         It "Default" -Test {
           Invoke-IntegrationTest -ArmResourcesScriptBlock `
           {
-            $part = New-ArmDashboardsQuickPulseButtonSmall -ApplicationInsights $ApplicationInsights `
+            $part = New-ArmDashboardsQuickPulseButtonSmall -ApplicationInsights $ExpectedApplicationInsights `
               -SubscriptionId $ExpectedSubscriptionId `
               -ResourceGroupName $ExpectedResourceGroupName
               

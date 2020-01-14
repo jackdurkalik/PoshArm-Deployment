@@ -23,8 +23,8 @@ InModuleScope PoshArmDeployment {
                   name  = 'ComponentId'
                   value = @{
                     Name           = $ExpectedResourceName
-                    SubscriptionId = $SubscriptionId
-                    ResourceGroup  = $ResourceGroupName
+                    SubscriptionId = $ExpectedSubscriptionId
+                    ResourceGroup  = $ExpectedResourceGroupName
                   }
                 }, 
                 @{
@@ -97,7 +97,7 @@ InModuleScope PoshArmDeployment {
         It "Default" -Test {
           Invoke-IntegrationTest -ArmResourcesScriptBlock `
           {
-            $part = New-ArmDashboardsWebTestsPinned -ApplicationInsights $ApplicationInsights `
+            $part = New-ArmDashboardsWebTestsPinned -ApplicationInsights $ExpectedApplicationInsights `
               -SubscriptionId $ExpectedSubscriptionId `
               -ResourceGroupName $ExpectedResourceGroupName
               
